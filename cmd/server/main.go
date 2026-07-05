@@ -61,6 +61,7 @@ func main() {
 
 	apiHandler := api.NewHandler(conn, booksDir)
 	r.GET("/api/books", apiHandler.ListBooks)
+	r.POST("/api/books/upload", apiHandler.UploadBook)
 	r.GET("/api/books/:id/download", apiHandler.DownloadBook)
 	r.DELETE("/api/books/:id", apiHandler.DeleteBook)
 	r.Static("/covers", filepath.Join(booksDir, "covers"))
