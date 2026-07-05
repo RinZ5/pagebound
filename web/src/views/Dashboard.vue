@@ -1,13 +1,20 @@
 <template>
   <div class="bookshelf">
+    <label class="upload-card" v-if="!loading">
+      <input type="file" accept=".epub" hidden @change="handleUpload" />
+      <div class="upload-icon">+</div>
+      <div class="upload-label">Add Book</div>
+    </label>
     <div v-if="loading" class="loading">Browsing the shelves&hellip;</div>
-    <div v-else-if="filtered.length === 0" class="empty-state">
+    <div v-else-if="filtered.length === 0 && books.length === 0" class="empty-state">
       <div class="icon">&#128218;</div>
-      <p v-if="books.length === 0">
+      <p>
         Your library is empty.<br />
-        <small>Connect via Finder and drop in some EPUBs.</small>
+        <small>Drop EPUBs via Finder or click + to upload.</small>
       </p>
-      <p v-else>No books match "{{ query }}".</p>
+    </div>
+    <div v-else-if="filtered.length === 0" class="empty-state">
+      <p>No books match "{{ query }}".</p>
     </div>
     <BookCard
       v-for="book in filtered"
@@ -57,6 +64,27 @@ async function fetchBooks() {
 function showToast(msg) {
   toast.value = msg
   setTimeout(() => (toast.value = ''), 2500)
+}
+
+async function handleUpload(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  loading.value = true
+  try {
+    const form = new FormData()
+    form.append('file', file)
+    const res = await fetch('/api/books/upload', { method: 'POST', body: form })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      showToast(data.error || 'Upload failed')
+    } else {
+      showToast(`Added "${file.name}"`)
+    }
+  } catch {
+    showToast('Upload failed')
+  }
+  await fetchBooks()
+  e.target.value = ''
 }
 
 async function handleDelete(id) {
