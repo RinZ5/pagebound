@@ -2,7 +2,9 @@ services:
   pagebound:
     build: .
     ports:
-      - "8080:8080"
+      - "8082:8082"
     volumes:
       - ./data:/data
+    environment:
+      LISTEN_ADDR: ":8082"
     restart: unless-stopped
