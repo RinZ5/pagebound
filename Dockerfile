@@ -15,9 +15,7 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /pagebound ./cmd/server
 
 FROM alpine:3.21
 RUN apk add --no-cache ca-certificates tzdata
-RUN adduser -D -h /data pagebound
 COPY --from=backend /pagebound /usr/local/bin/pagebound
-USER pagebound
 WORKDIR /data
 EXPOSE 8080
 ENV BOOKS_DIR=/data/books
